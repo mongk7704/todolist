@@ -28,6 +28,7 @@ public class TodoController {
 	}
 
 	@GetMapping("/tasks")
+	@ResponseStatus(HttpStatus.CREATED)
 	List<Task> list() {
 		return service.todoList();
 	}
@@ -47,16 +48,19 @@ public class TodoController {
 	}
 
 	@DeleteMapping("task/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
 	void delete(@PathVariable int id) {
 		service.todoDelete(id);
 	}
 
 	@DeleteMapping("/completed")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
 	void deleteCompleted(@RequestBody String[] ids) {
 		service.deleteCompleted(ids);
 	}
 
 	@PutMapping("task/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
 	void update(@RequestBody HashMap<String, String> map, @PathVariable int id) {
 		service.todoComplete(id, Integer.parseInt(map.get("completed")));
 	}

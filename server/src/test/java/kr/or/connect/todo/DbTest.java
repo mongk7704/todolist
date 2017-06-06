@@ -17,7 +17,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.context.WebApplicationContext;
+
+
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = TodoApplication.class)
@@ -26,31 +29,26 @@ public class DbTest {
 	@Autowired
 	WebApplicationContext wac;
 	MockMvc mvc;
-
+	
+	private int id;
 	@Before
 	public void setUp() {
 		this.mvc = webAppContextSetup(this.wac).alwaysDo(print(System.out)).build();
 	}
-
 	@Test
-	public void shouldCreate() throws Exception {
+	public void shouldDAO() throws Exception {
 
 		String requestBody = "{\"id\":\"\",\"todo\":\"해야할일\",\"completed\":0,\"date\":\"2017-06-05T04:30:25.773Z\"}";
-		mvc.perform(post("/task").contentType(MediaType.APPLICATION_JSON).content(requestBody))
+		MvcResult result= mvc.perform(post("/task").contentType(MediaType.APPLICATION_JSON).content(requestBody))
 				.andExpect(status().isCreated()).andExpect(jsonPath("$.id").exists())
-				.andExpect(jsonPath("$.todo").value("해야할일")).andExpect(jsonPath("$.completed").value(0));
-	}
-
-	@Test
-	public void shouldDelete() throws Exception {
-		mvc.perform(delete("/task/26")).andExpect(status().isOk());
-	}
-
-	@Test
-	public void shouldUpdate() throws Exception {
-		String requestBody = "{\"completed\":1}";
-		mvc.perform(put("/task/26").contentType(MediaType.APPLICATION_JSON).content(requestBody))
-				.andExpect(status().isOk());
-
+				.andExpect(jsonPath("$.todo").value("해야할일")).andExpect(jsonPath("$.completed").value(0)).andReturn();
+		id=Integer.parseInt(result.getResponse().getContentAsString().substring(6, 7));
+		
+		requestBody = "{\"completed\":1}";
+		mvc.perform(put("/task/"+id).contentType(MediaType.APPLICATION_JSON).content(requestBody))
+				.andExpect(status().isNoContent());
+		
+		mvc.perform(delete("/task/"+id)).andExpect(status().isNoContent());
+		
 	}
 }
